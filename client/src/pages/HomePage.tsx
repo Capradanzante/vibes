@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Vibe, Song, Content } from '../types';
-import { getPopularVibes, getRecentSongs, getRecentContent } from '../services/api';
+import { vibesApi, songsApi, contentApi } from '../services/api';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -25,13 +25,13 @@ const HomePage = () => {
       setLoading(true);
       setError(null);
       const [vibes, songs, content] = await Promise.all([
-        getPopularVibes(),
-        getRecentSongs(),
-        getRecentContent()
+        vibesApi.getPopular(),
+        songsApi.getRecent(),
+        contentApi.getRecent()
       ]);
-      setPopularVibes(vibes);
-      setRecentSongs(songs);
-      setRecentContent(content);
+      setPopularVibes(vibes.data);
+      setRecentSongs(songs.data);
+      setRecentContent(content.data);
     } catch (err) {
       setError('Errore nel caricamento dei dati. Riprova più tardi.');
       console.error('Error fetching data:', err);
@@ -135,7 +135,7 @@ const HomePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {recentSongs.map((song) => (
                   <div key={song.id} className="p-4 bg-white rounded-lg shadow">
-                    <h4 className="font-semibold">{song.name}</h4>
+                    <h4 className="font-semibold">{song.title}</h4>
                     <p className="text-gray-600">{song.artist}</p>
                     <div className="flex gap-2 mt-2">
                       {song.vibes.map((vibe) => (
@@ -160,8 +160,7 @@ const HomePage = () => {
                   <div key={content.id} className="p-4 bg-white rounded-lg shadow">
                     <h4 className="font-semibold">{content.title}</h4>
                     <p className="text-gray-600">
-                      {content.type === 'movie' ? 'Film' : 'Serie TV'} •{' '}
-                      {content.release_year}
+                      {content.type === 'movie' ? 'Film' : 'Serie TV'}
                     </p>
                     {content.vibes && (
                       <div className="flex gap-2 mt-2">

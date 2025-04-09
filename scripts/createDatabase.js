@@ -41,9 +41,42 @@ async function setupDatabase() {
 
   const client = await vibesPool.connect();
   try {
-    // Leggi e esegui lo schema SQL
+    // Check if types exist
+    const typeCheckQuery = `
+      SELECT EXISTS (
+        SELECT 1 FROM pg_type WHERE typname = 'media_type'
+      ) as media_type_exists,
+      EXISTS (
+        SELECT 1 FROM pg_type WHERE typname = 'vibe_category'
+      ) as vibe_category_exists,
+      EXISTS (
+        SELECT 1 FROM pg_type WHERE typname = 'vibe_source'
+      ) as vibe_source_exists,
+      EXISTS (
+        SELECT 1 FROM pg_type WHERE typname = 'user_role'
+      ) as user_role_exists
+    `;
+    
+    const typeCheckResult = await client.query(typeCheckQuery);
+    const { media_type_exists, vibe_category_exists, vibe_source_exists, user_role_exists } = typeCheckResult.rows[0];
+
+    // Leggi lo schema SQL
     const schemaPath = path.join(__dirname, 'database.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf8');
+    let schema = fs.readFileSync(schemaPath, 'utf8');
+    
+    // Remove type creation if they already exist
+    if (media_type_exists) {
+      schema = schema.replace(/CREATE TYPE media_type AS ENUM.*?;/g, '');
+    }
+    if (vibe_category_exists) {
+      schema = schema.replace(/CREATE TYPE vibe_category AS ENUM.*?;/g, '');
+    }
+    if (vibe_source_exists) {
+      schema = schema.replace(/CREATE TYPE vibe_source AS ENUM.*?;/g, '');
+    }
+    if (user_role_exists) {
+      schema = schema.replace(/CREATE TYPE user_role AS ENUM.*?;/g, '');
+    }
     
     await client.query(schema);
     console.log('Schema del database creato con successo');
