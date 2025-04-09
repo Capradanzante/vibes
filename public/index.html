@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibes - Scopri le atmosfere che ti piacciono</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <i class="fas fa-music"></i> Vibes
+      </a>
+      <nav class="nav-links">
+        <a href="#how-it-works">Come Funziona</a>
+        <a href="#explore">Esplora</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Trova le tue Vibes</h1>
+      <p>Scopri film, serie TV e musica che condividono la stessa atmosfera</p>
+      <div class="search-section">
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="Cerca una vibe, una canzone, un film...">
+          <button class="search-button">
+            <i class="fas fa-search"></i> Cerca
+          </button>
+        </div>
+        <div class="vibe-categories" id="vibe-categories">
+          <!-- Le categorie di vibe verranno caricate dinamicamente -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <h2 class="section-title">Come Funziona</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Cerca una Vibe</h3>
+          <p>Trova l'atmosfera che ti piace o che stai cercando</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Scopri i Contenuti</h3>
+          <p>Visualizza film, serie TV e musica che condividono quella vibe</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Esplora e Salva</h3>
+          <p>Salva i tuoi preferiti e crea le tue playlist di vibes</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="explore">
+    <div class="container">
+      <h2 class="section-title">Esplora le Vibes Popolari</h2>
+      <div class="grid" id="vibes-grid">
+        <!-- Le vibes verranno caricate dinamicamente -->
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="movies">
+    <div class="container">
+      <h2 class="section-title">Film Recenti</h2>
+      <div class="grid" id="movies-grid">
+        <!-- I film verranno caricati dinamicamente -->
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="shows">
+    <div class="container">
+      <h2 class="section-title">Serie TV Popolari</h2>
+      <div class="grid" id="shows-grid">
+        <!-- Le serie TV verranno caricate dinamicamente -->
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="music">
+    <div class="container">
+      <h2 class="section-title">Musica in Trend</h2>
+      <div class="grid" id="music-grid">
+        <!-- Le canzoni verranno caricate dinamicamente -->
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Dati di esempio per le categorie di vibe
+    const vibeCategories = [
+      { name: 'Tropicale', icon: 'fa-umbrella-beach', description: 'Atmosfera da spiaggia e relax' },
+      { name: 'Urbano', icon: 'fa-city', description: 'Vita di città e metropolitan vibes' },
+      { name: 'Nostalgico', icon: 'fa-heart', description: 'Ricordi e momenti del passato' },
+      { name: 'Energetico', icon: 'fa-bolt', description: 'Energia e motivazione' },
+      { name: 'Rilassante', icon: 'fa-spa', description: 'Calma e pace interiore' },
+      { name: 'Romantico', icon: 'fa-heart', description: 'Amore e sentimenti' }
+    ];
+
+    // Funzione per creare una card di vibe
+    function createVibeCard(vibe) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-content">
+          <i class="fas ${vibe.icon}"></i>
+          <h3 class="card-title">${vibe.name}</h3>
+          <p class="card-subtitle">${vibe.description}</p>
+        </div>
+      `;
+      return card;
+    }
+
+    // Funzione per creare una categoria di vibe
+    function createVibeCategory(category) {
+      const div = document.createElement('div');
+      div.className = 'vibe-category';
+      div.innerHTML = `
+        <i class="fas ${category.icon}"></i>
+        <h3>${category.name}</h3>
+        <p>${category.description}</p>
+      `;
+      return div;
+    }
+
+    // Carica le categorie e le vibes quando la pagina è pronta
+    document.addEventListener('DOMContentLoaded', () => {
+      const categoriesContainer = document.getElementById('vibe-categories');
+      const vibesContainer = document.getElementById('vibes-grid');
+
+      // Carica le categorie
+      vibeCategories.forEach(category => {
+        categoriesContainer.appendChild(createVibeCategory(category));
+      });
+
+      // Carica le vibes
+      fetch('/api/vibes')
+        .then(response => response.json())
+        .then(vibes => {
+          vibes.forEach(vibe => {
+            vibesContainer.appendChild(createVibeCard(vibe));
+          });
+        })
+        .catch(error => {
+          console.error('Errore nel caricamento delle vibes:', error);
+        });
+    });
+
+    // Funzione per creare una card
+    function createCard(item, type) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      let content = '';
+      if (type === 'vibe') {
+        content = `
+          <div class="card-content">
+            <i class="fas ${item.icon}"></i>
+            <h3 class="card-title">${item.name}</h3>
+            <p class="card-subtitle">${item.description}</p>
+          </div>
+        `;
+      } else if (type === 'movie' || type === 'show') {
+        content = `
+          <div class="content-details">
+            <img src="${item.poster_url}" alt="${item.title}" class="card-image">
+            <div class="content-overlay">
+              <div class="streaming-links">
+                ${item.streaming_links ? item.streaming_links.map(link => `
+                  <a href="${link.url}" class="streaming-link ${link.platform.toLowerCase()}" target="_blank">
+                    <i class="fab fa-${link.platform.toLowerCase()}"></i>
+                    ${link.platform}
+                  </a>
+                `).join('') : ''}
+              </div>
+            </div>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">${item.title}</h3>
+            <p class="card-subtitle">${item.release_year}</p>
+            <div class="vibe-tags">
+              ${item.vibes ? item.vibes.map(vibe => `<span class="vibe-tag">${vibe}</span>`).join('') : ''}
+            </div>
+          </div>
+        `;
+      } else if (type === 'music') {
+        content = `
+          <div class="card-content">
+            <h3 class="card-title">${item.title}</h3>
+            <p class="card-subtitle">${item.artist}</p>
+            <div class="vibe-tags">
+              ${item.vibes ? item.vibes.map(vibe => `<span class="vibe-tag">${vibe}</span>`).join('') : ''}
+            </div>
+            <div class="streaming-links">
+              <a href="${item.spotify_url}" class="streaming-link spotify" target="_blank">
+                <i class="fab fa-spotify"></i>
+                Spotify
+              </a>
+              <a href="${item.apple_music_url}" class="streaming-link apple" target="_blank">
+                <i class="fab fa-apple"></i>
+                Apple Music
+              </a>
+            </div>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = content;
+      return card;
+    }
+
+    // Funzione per caricare i dati
+    async function loadData(endpoint, containerId, type) {
+      try {
+        const response = await fetch(`/api/${endpoint}`);
+        const data = await response.json();
+        
+        const container = document.getElementById(containerId);
+        data.forEach(item => {
+          container.appendChild(createCard(item, type));
+        });
+      } catch (error) {
+        console.error(`Errore nel caricamento dei ${type}:`, error);
+      }
+    }
+
+    // Carica i dati quando la pagina è pronta
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData('vibes', 'vibes-grid', 'vibe');
+      loadData('movies', 'movies-grid', 'movie');
+      loadData('shows', 'shows-grid', 'show');
+      loadData('songs', 'music-grid', 'music');
+    });
+  </script>
+</body>
+</html>
